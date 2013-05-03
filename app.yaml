@@ -1,0 +1,25 @@
+application: utactica
+version: 1
+runtime: python27
+api_version: 1
+threadsafe: true
+
+handlers:
+
+- url: /_js
+  static_dir: _js
+
+- url: /_media
+  static_dir: _media
+
+- url: /_styles
+  static_dir: _styles
+  
+- url: /licenses.html
+  static_files: licenses.html
+  upload: licenses.html  
+
+- url: /.*
+  static_files: index.html
+  upload: index.html
+
