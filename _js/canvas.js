@@ -54,7 +54,9 @@ CanvasClass = Class.extend({
 		this.layers['stars'].context.scale(this.scale,this.scale);
 		this.layers['stars'].canvas.style.top = (window.innerHeight - 1080*this.scale) /2+'px';
 		this.layers['stars'].canvas.style.left = (window.innerWidth - 1920*this.scale) /2+'px';
-
+		
+		stars.redraw();
+		
 //		units.scale();	// calculate new unit positions
 	}
 	

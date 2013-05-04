@@ -1,5 +1,6 @@
 var gameClass = Class.extend({
-
+	location: 100,
+	
 	init: function () {
 	},
 
@@ -12,8 +13,7 @@ var gameClass = Class.extend({
 		this.redraw();					// ditto
 		requestAnimationFrame( game.animFrame );		// Start animation loop
 
-		stars.renderClouds();
-		stars.renderStars();
+		stars.redraw();
 
 	},
 	
