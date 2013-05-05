@@ -45,19 +45,12 @@ CanvasClass = Class.extend({
 		this.scale = Math.min(window.innerWidth / 1920, window.innerHeight / 1080); // Scale needed to fit board in canvas
 		this.screenRatio = window.innerWidth / window.innerHeight;
 		
-//		this.Offset.x = ((window.innerWidth - (1920 * this.scale))/2)/this.scale;	// Offset needed to center board in canvas X
-//		this.Offset.y = ((window.innerHeight - (1080 * this.scale))/2)/this.scale; 	// Offset needed to center board in canvas X
-
 		this.setSize( Math.min(window.innerWidth,1920*this.scale), Math.min(window.innerHeight,1080*this.scale) ); // canvas = full window size
 		
 		// Apply scale to canvases
 		this.layers['stars'].context.scale(this.scale,this.scale);
 		this.layers['stars'].canvas.style.top = (window.innerHeight - 1080*this.scale) /2+'px';
 		this.layers['stars'].canvas.style.left = (window.innerWidth - 1920*this.scale) /2+'px';
-		
-		stars.redraw();
-		
-//		units.scale();	// calculate new unit positions
 	}
 	
 });

@@ -1,5 +1,5 @@
 var gameClass = Class.extend({
-	location: 1,
+	location: 7,
 	canvaswidth: 1920,
 	canvasheight: 1080,
 	
@@ -11,19 +11,17 @@ var gameClass = Class.extend({
 		cv = new CanvasClass();  		// canvas layers and contexts
 		stars = new StarsClass();
 		this.setupListners();			// Add some listners
+
+//		requestAnimationFrame( game.animFrame );		// Start animation loop
+
 		cv.setScale();					// TODO: not sure about this line and the next
-		this.redraw();					// ditto
-		requestAnimationFrame( game.animFrame );		// Start animation loop
-
-		stars.redraw();
-
+		this.redraw();
 	},
 	
 
 	animFrame: function(){
 		// Animation loop
 		requestAnimationFrame( game.animFrame ); 		// continue loop
-		stars.animFrame();
 //		effects.animFrame();							// render any currrent effects
 //		units.animFrame();								// render any unit changes
 	},
@@ -46,6 +44,7 @@ var gameClass = Class.extend({
 //		board.render(); // render the playing board
 //		units.redraw(); // render the playing board
 //		ui.redraw();	// render the user interface
+		stars.redraw();
 	},
 
 });

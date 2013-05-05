@@ -2,8 +2,6 @@ StarsClass = Class.extend({
 	ctx: null,
 	bgclouds: [],
 	bgstars: [],
-	offscreenbuffer: null,
-	offscreenctx: null,
 	stars: { perlinoctaves:2,
 			 perlinfalloff:0.5,
 			 featurescale:0.002,
@@ -12,16 +10,16 @@ StarsClass = Class.extend({
 			 brightness:120,
 			 sizeoffset:-10},
 			 
-	nebulacolors: [[2,10,2],[20,-10,0],[0,20,20],[0,0,-10],[-10,-10,5],[-5,0,-5],[0,0,0][10,10,10]],
+	nebulacolors: [[2,10,2],[20,-10,0],[0,20,10],[0,0,-10],[-10,-10,5],[-5,0,-5],[0,0,0],[10,10,10]],
 	nebulatypes: [[[0,0],
 				   [0,0],
 				   [0,0]],
 				   
 				  [[0,0],
-				   [20,0],
+				   [10,0],
 				   [0,0]],
 				   
-				  [[20,0],
+				  [[15,0],
 				   [0,0],
 				   [0,0]],
 				   
@@ -43,7 +41,7 @@ StarsClass = Class.extend({
 				   
 				  [[0,0],
 				   [20,0],
-				   [0,40]],
+				   [0,20]],
 				 ],
 	
 	clouds: { perlinoctaves:5,
@@ -59,20 +57,17 @@ StarsClass = Class.extend({
 	},
 	
 	draw: function () {
+
 		if(!this.bgclouds[game.location]) {
+			this.loading();
+			console.log('loading');
 			this.bgclouds[game.location] = this.renderClouds();
 			this.bgstars[game.location] = this.renderStars();
 		}
-		var bgclouds = new Image();
-		bgclouds.src = this.bgclouds[game.location];
-		bgclouds.onload = function() {
-			stars.ctx.drawImage(bgclouds, 0, 0);
-		};
-		var bgstars = new Image();
-		bgstars.src = this.bgstars[game.location];
-		bgstars.onload = function() {
-			stars.ctx.drawImage(bgstars, 0, 0);
-		};
+		this.ctx.drawImage(this.bgclouds[game.location], 0, 0);
+		this.ctx.drawImage(this.bgstars[game.location], 0, 0);
+		game.location++;
+		setTimeout(game.redraw(),1000);
 	},
 	
 	wipe: function () {
@@ -88,15 +83,17 @@ StarsClass = Class.extend({
 	},
 	
 	renderClouds: function () {
-		this.offscreenctx.clearRect ( 0 , 0 , game.canvaswidth , game.canvasheight );
-		width = game.canvaswidth;
-		height = game.canvasheight;
+		var tempbuffer = document.createElement("canvas");
+		tempbuffer.width = game.canvaswidth;
+		tempbuffer.height = game.canvasheight;
+		var tempctx = tempbuffer.getContext('2d');
+		
 		random = new MersenneTwister(game.location);
 		PerlinSimplex.setRng(random);
 		PerlinSimplex.noiseDetail(this.clouds.perlinoctaves,this.clouds.perlinfalloff);
 
 		// create a new pixel array
-		imageData = this.offscreenctx.createImageData(width, height);
+		imageData = this.offscreenctx.createImageData(game.canvaswidth, game.canvasheight);
 		var data = imageData.data
 		var fScl = this.clouds.featurescale;
 		
@@ -104,15 +101,13 @@ StarsClass = Class.extend({
 		
 		var nebulacolor = this.nebulacolors[Math.floor(random.random()*this.nebulacolors.length)];
 		var nebulatype = this.nebulatypes[Math.floor(random.random()*this.nebulatypes.length)];
-		
-		for(var i=1; i < width*height; i++){
-				x = i % width;
-				y = Math.floor(i / height);
+
+		for(var i=1; i < game.canvaswidth*game.canvasheight; i++){
+				x = i % game.canvaswidth;
+				y = Math.floor(i / game.canvasheight);
 				xx = 0+x*fScl;
 				yy = 0+y*fScl;
 				noise = Math.floor(PerlinSimplex.noise( xx,yy )*40)-20;
-
-				if(i < 1920) console.log(nebulatype[1][0]*(x/game.canvaswidth)+Math.random()-1);
 
 				data[i*4] = Math.max( noise + nebulacolor[0] + nebulatype[0][0]*(x/game.canvaswidth) + nebulatype[0][1]*(y/game.canvasheight) + Math.random() - 1, 0);
 				data[i*4+1] = Math.max( noise + nebulacolor[1] + nebulatype[1][0]*(x/game.canvaswidth) + nebulatype[1][1]*(y/game.canvasheight) + Math.random() - 1, 0);
@@ -120,13 +115,15 @@ StarsClass = Class.extend({
 				data[i*4+3] = 255;
 		}
 
-		// copy the image data back onto the canvas
-		this.offscreenctx.putImageData(imageData, 0, 0); // at coords 0,0
-		return this.offscreenbuffer.toDataURL();
+		tempctx.putImageData(imageData, 0, 0); // at coords 0,0
+		return tempbuffer;
 	},
 
 	renderStars: function () {
-		this.offscreenctx.clearRect ( 0 , 0 , game.canvaswidth , game.canvasheight ); // clear offscreen buffer
+		var tempbuffer = document.createElement("canvas");
+		tempbuffer.width = game.canvaswidth;
+		tempbuffer.height = game.canvasheight;
+		var tempctx = tempbuffer.getContext('2d');
 		
 		rnd = new MersenneTwister(game.location+1);
 		PerlinSimplex.setRng(rnd);
@@ -189,7 +186,7 @@ StarsClass = Class.extend({
 								data3[pixels[p]*4+2] = brightness[2] - 170;
 								data3[pixels[p]*4+3] = 255;
 							}
-							this.offscreenctx.putImageData(star3, x, y);
+							tempctx.putImageData(star3, x, y);
 					}
 					else {
 						if(brightness[0] > 210) {
@@ -200,20 +197,28 @@ StarsClass = Class.extend({
 								data2[pixels[p]*4+2] = brightness[2];
 								data2[pixels[p]*4+3] = 255;
 							}
-							this.offscreenctx.putImageData(star2, x, y);
+							tempctx.putImageData(star2, x, y);
 						}
 						else {
 							data1[0] = brightness[0]*1.2;
 							data1[1] = brightness[1]*1.2;
 							data1[2] = brightness[2]*1.2;
 							data1[3] = brightness[0];
-							this.offscreenctx.putImageData(star1, x, y);
+							tempctx.putImageData(star1, x, y);
 						}
 					}
 				}
 		}
-		return this.offscreenbuffer.toDataURL();
+		return tempbuffer;
 	},
 	
+	loading: function () {
+		this.ctx.font = "normal 400 50px 'Roboto Condensed','Trebuchet MS',sans-serif";
+		this.ctx.textAlign = 'center';
+		this.ctx.fillStyle = '#e04545';
+		var x = game.canvaswidth/2;
+		var y = game.canvasheight/2;
+		this.ctx.fillText('Loading', x, y);
+	},
 	
 })
