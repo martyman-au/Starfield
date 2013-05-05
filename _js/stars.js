@@ -4,14 +4,51 @@ StarsClass = Class.extend({
 	bgstars: [],
 	offscreenbuffer: null,
 	offscreenctx: null,
-	nebulas: [[20,30,20],[30,0,10],[10,30,30],[20,20,0]],
 	stars: { perlinoctaves:2,
 			 perlinfalloff:0.5,
+			 featurescale:0.002,
 			 colorvar:50,
 			 density:0.007,
 			 brightness:120,
-			 sizeoffset:-10,
-			 featurescale:0.002},
+			 sizeoffset:-10},
+			 
+	nebulacolors: [[2,10,2],[20,-10,0],[0,20,20],[0,0,-10],[-10,-10,5],[-5,0,-5],[0,0,0][10,10,10]],
+	nebulatypes: [[[0,0],
+				   [0,0],
+				   [0,0]],
+				   
+				  [[0,0],
+				   [20,0],
+				   [0,0]],
+				   
+				  [[20,0],
+				   [0,0],
+				   [0,0]],
+				   
+				  [[0,0],
+				   [20,0],
+				   [0,0]],
+				   
+				  [[0,0],
+				   [10,-10],
+				   [0,0]],
+				   
+				  [[0,-10],
+				   [20,0],
+				   [0,0]],
+				   
+				  [[-10,0],
+				   [0,0],
+				   [10,0]],
+				   
+				  [[0,0],
+				   [20,0],
+				   [0,40]],
+				 ],
+	
+	clouds: { perlinoctaves:5,
+			  perlinfalloff:0.5,
+			  featurescale:0.001},
 	
 	init: function () {
 		this.ctx = cv.layers.stars.context;
@@ -56,24 +93,30 @@ StarsClass = Class.extend({
 		height = game.canvasheight;
 		random = new MersenneTwister(game.location);
 		PerlinSimplex.setRng(random);
-		PerlinSimplex.noiseDetail(4,0.5);
+		PerlinSimplex.noiseDetail(this.clouds.perlinoctaves,this.clouds.perlinfalloff);
 
 		// create a new pixel array
 		imageData = this.offscreenctx.createImageData(width, height);
 		var data = imageData.data
-		var fScl = 0.002;
+		var fScl = this.clouds.featurescale;
 		
-		var noise = 0;
+		var noise = null;
+		
+		var nebulacolor = this.nebulacolors[Math.floor(random.random()*this.nebulacolors.length)];
+		var nebulatype = this.nebulatypes[Math.floor(random.random()*this.nebulatypes.length)];
 		
 		for(var i=1; i < width*height; i++){
 				x = i % width;
 				y = Math.floor(i / height);
 				xx = 0+x*fScl;
 				yy = 0+y*fScl;
-				noise = Math.floor(PerlinSimplex.noise( xx,yy )*60);
-				data[i*4] = Math.max( noise - 20, 0);
-				data[i*4+1] = Math.max( noise - 30, 0);
-				data[i*4+2] = Math.max( noise - 20, 0);
+				noise = Math.floor(PerlinSimplex.noise( xx,yy )*40)-20;
+
+				if(i < 1920) console.log(nebulatype[1][0]*(x/game.canvaswidth)+Math.random()-1);
+
+				data[i*4] = Math.max( noise + nebulacolor[0] + nebulatype[0][0]*(x/game.canvaswidth) + nebulatype[0][1]*(y/game.canvasheight) + Math.random() - 1, 0);
+				data[i*4+1] = Math.max( noise + nebulacolor[1] + nebulatype[1][0]*(x/game.canvaswidth) + nebulatype[1][1]*(y/game.canvasheight) + Math.random() - 1, 0);
+				data[i*4+2] = Math.max( noise + nebulacolor[2] + nebulatype[2][0]*(x/game.canvaswidth) + nebulatype[2][1]*(y/game.canvasheight) + Math.random() - 1, 0);
 				data[i*4+3] = 255;
 		}
 
@@ -147,7 +190,6 @@ StarsClass = Class.extend({
 								data3[pixels[p]*4+3] = 255;
 							}
 							this.offscreenctx.putImageData(star3, x, y);
-							console.log('extra big star '+x+' '+y);
 					}
 					else {
 						if(brightness[0] > 210) {
@@ -159,13 +201,12 @@ StarsClass = Class.extend({
 								data2[pixels[p]*4+3] = 255;
 							}
 							this.offscreenctx.putImageData(star2, x, y);
-							console.log('big star');
 						}
 						else {
-							data1[0] = brightness[0];
-							data1[1] = brightness[1];
-							data1[2] = brightness[2];
-							data1[3] = 255
+							data1[0] = brightness[0]*1.2;
+							data1[1] = brightness[1]*1.2;
+							data1[2] = brightness[2]*1.2;
+							data1[3] = brightness[0];
 							this.offscreenctx.putImageData(star1, x, y);
 						}
 					}

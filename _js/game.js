@@ -1,5 +1,5 @@
 var gameClass = Class.extend({
-	location: 103,
+	location: 1,
 	canvaswidth: 1920,
 	canvasheight: 1080,
 	
