@@ -1,18 +1,15 @@
-StarsClass = Class.extend({
-	workers: {stars:null, clouds:null},
-	ctx: null,
-	bgclouds: [],
-	bgstars: [],
-	stars: { perlinoctaves:2,
-			 perlinfalloff:0.5,
-			 featurescale:0.002,
-			 colorvar:50,
-			 density:0.007,
-			 brightness:120,
-			 sizeoffset:-10},
+importScripts('mersenne-twister.js','PerlinSimplex.js');
+
+var stars = { perlinoctaves:2,
+			  perlinfalloff:0.5,
+			  featurescale:0.002,
+			  colorvar:50,
+			  density:0.007,
+			  brightness:120,
+			  sizeoffset:-10};
 			 
-	nebulacolors: [[2,10,2],[20,-10,0],[0,20,10],[0,0,-10],[-10,-10,5],[-5,0,-5],[0,0,0],[10,10,10]],
-	nebulatypes: [[[0,0],
+var nebulacolors: [[2,10,2],[20,-10,0],[0,20,10],[0,0,-10],[-10,-10,5],[-5,0,-5],[0,0,0],[10,10,10]];
+var nebulatypes: [[[0,0],
 				   [0,0],
 				   [0,0]],
 				   
@@ -43,51 +40,13 @@ StarsClass = Class.extend({
 				  [[0,0],
 				   [20,0],
 				   [0,20]],
-				 ],
+				 ];
 	
-	clouds: { perlinoctaves:5,
+var clouds: { perlinoctaves:5,
 			  perlinfalloff:0.5,
-			  featurescale:0.001},
+			  featurescale:0.001};
 	
-	init: function () {
-		this.ctx = cv.layers.stars.context;
-		this.offscreenbuffer = document.createElement("canvas");
-		this.offscreenbuffer.width = game.canvaswidth;
-		this.offscreenbuffer.height = game.canvasheight;
-		this.offscreenctx = this.offscreenbuffer.getContext('2d');
-		this.workers.stars = new Worker('_js/worker-stars.js');
-//		this.workers.clouds = new Worker('_js/worker-clouds.js');
-	},
 	
-	draw: function () {
-		if(!this.bgclouds[game.location] | !this.bgstars[game.location]) {
-			this.loading();
-			console.log('loading');
-			
-			this.workers.stars.addEventListener('message', function(e) {
-				console.log('Worker said: ', e.data);
-			}, false);
-			
-			this.workers.stars.postMessage(game.location);
-//			this.workers.clouds.postMessage(game.location);
-//			this.bgclouds[game.location] = this.renderClouds();
-//			this.bgstars[game.location] = this.renderStars();
-		}
-//		this.ctx.drawImage(this.bgclouds[game.location], 0, 0);
-//		this.ctx.drawImage(this.bgstars[game.location], 0, 0);
-	},
-	
-	wipe: function () {
-		this.ctx.clearRect ( 0 , 0 , game.canvaswidth , game.canvasheight );
-	},
-	
-	redraw: function () {
-		this.draw();
-	},
-	
-	animFrame: function () {
-//		this.redraw();
-	},
 	
 	renderClouds: function () {
 		var tempbuffer = document.createElement("canvas");
