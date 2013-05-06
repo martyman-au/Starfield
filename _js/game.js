@@ -1,5 +1,5 @@
 var gameClass = Class.extend({
-	location: 7,
+	location: ~~(Math.random()*100),
 	canvaswidth: 1920,
 	canvasheight: 1080,
 	

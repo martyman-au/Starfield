@@ -1,4 +1,4 @@
-importScripts('mersenne-twister.js','PerlinSimplex.js');
+importScripts('mersenne-twister.js','PerlinSimplex2.js');
 			 
 var nebulacolors = [[2,10,2],[20,-10,0],[0,20,10],[0,0,-10],[-10,-10,5],[-5,0,-5],[0,0,0],[10,10,10]];
 var nebulatypes = [[[0,0],
@@ -71,11 +71,11 @@ function renderClouds(location) {
 //	imageData = this.offscreenctx.createImageData(game.width, game.height);
 	var fScl = clouds.featurescale;
 	
-	var noise = null;
+	var x = y = xx = yy = noise = null;
 	
 	var nebulacolor = nebulacolors[Math.floor(random.random()*nebulacolors.length)];
 	var nebulatype = nebulatypes[Math.floor(random.random()*nebulatypes.length)];
-
+	
 	for(var i=1; i < buffer.width*buffer.height; i++){
 			x = i % buffer.width;
 			y = Math.floor(i / buffer.height);
@@ -94,4 +94,5 @@ function renderClouds(location) {
 
 self.addEventListener('message', function(e) {
   self.postMessage({ type: 'data', message: renderClouds(e.data)});
+  self.close();
 }, false);

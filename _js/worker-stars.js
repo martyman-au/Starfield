@@ -1,4 +1,4 @@
-importScripts('/~martin/starfield/_js/mersenne-twister.js','/~martin/starfield/_js/PerlinSimplex.js');
+importScripts('mersenne-twister.js','PerlinSimplex2.js');
 
 var stars = { perlinoctaves:2,
 			  perlinfalloff:0.5,
@@ -125,4 +125,5 @@ function renderStars(location) {
 
 self.addEventListener('message', function(e) {
   self.postMessage({ type: 'data', message: renderStars(e.data)});
+  self.close();
 }, false);

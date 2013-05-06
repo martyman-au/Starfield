@@ -57,7 +57,11 @@ StarsClass = Class.extend({
 	draw: function () {
 		if(!this.bg[game.location]) {
 			this.bg[game.location] = new BackgroundClass();
+			var bg = this.bg[game.location];
+			bg.state = 'loading';
+			
 			console.log('loading');
+			this.loading();
 			
 			this.workers.stars.addEventListener('message', function(e) {
 				if( e.data.type == 'log' ) {
@@ -65,8 +69,14 @@ StarsClass = Class.extend({
 				}
 				else if( e.data.type == 'data' ) {
 					console.log('Star data received');
-					stars.bg[game.location].saveStars(e.data.message);
-					stars.bg[game.location].drawStars();
+					bg.saveStars(e.data.message);
+					bg.starsloaded = 1;
+					
+					if( bg.starsloaded & bg.cloudsloaded ) {
+						bg.state = 'loaded';
+						bg.drawClouds();
+						bg.drawStars();
+					}
 				}
 			}, false);
 			
@@ -76,18 +86,23 @@ StarsClass = Class.extend({
 				}
 				else if( e.data.type == 'data' ) {
 					console.log('Cloud data received');
-//					console.log(e.data.message);
-					stars.bg[game.location].saveClouds(e.data.message);
-					stars.bg[game.location].drawClouds();
+					bg.saveClouds(e.data.message);
+					bg.cloudsloaded = 1;
+					
+					if( bg.starsloaded & bg.cloudsloaded ) {
+						bg.state = 'loaded';
+						bg.drawClouds();
+						bg.drawStars();
+					}
 				}
 			}, false);
 			
 			this.workers.stars.postMessage(game.location);
 			this.workers.clouds.postMessage(game.location);
 		}
-		else {
-		  stars.bg[game.location].drawClouds();
-		  stars.bg[game.location].drawStars();
+		else if(this.bg[game.location].state == 'loaded') {
+		  this.bg[game.location].drawClouds();
+		  this.bg[game.location].drawStars();
 		}
 	},
 	
@@ -120,6 +135,8 @@ BackgroundClass = Class.extend({
 	starsctx: null,
 	cloudscv: null,
 	cloudsctx: null,
+	starsloaded: 0,
+	cloudsloaded: 0,
 	
 	init: function () {
 		this.starscv = document.createElement("canvas");
