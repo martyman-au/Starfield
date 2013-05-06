@@ -21,18 +21,17 @@ function renderStars(location) {
 	buffer.width = 1920;
 	buffer.height = 1080;
 	buffer.data = createBlankArray(1920*1080*4);
-	buffer.putImageData = function (data, x, y) {
-		var pixelcount = data.length/4;
-		var dim = Math.sqrt(pixelcount);
-		for( var i = 0; i < pixelcount; i++) {
-			var row = Math.floor(i / dim);
-			var col = i % dim;
-			buffer.data[(x+col)+(y*buffer.width)+(row*buffer.width)+0] = ~~(data[i*4+0]);
-			buffer.data[(x+col)+(y*buffer.width)+(row*buffer.width)+1] = ~~(data[i*4+1]);
-			buffer.data[(x+col)+(y*buffer.width)+(row*buffer.width)+2] = ~~(data[i*4+2]);
-			buffer.data[(x+col)+(y*buffer.width)+(row*buffer.width)+3] = ~~(data[i*4+3]);
+	buffer.addPixels = function (data, x, y) {
+		var datawidth = Math.sqrt(data.length/4)*4;
+		for( var i = 0; i < data.length; i++) {
+			var row = Math.floor(i / datawidth);
+			var col = i % datawidth;
+			
+			var xindex = x*4 + col;
+			var yindex = y + row;
+			buffer.data[xindex + yindex*buffer.width*4] = data[i];
 		}
-	}
+	};
 	
 	var rnd = new MersenneTwister(location+1);
 	PerlinSimplex.setRng(rnd);
@@ -44,6 +43,7 @@ function renderStars(location) {
 	var data3 = createBlankArray(7*7*4);
 	
 	var noise = null;
+	var starchance = null;
 	
 	for(var i=1; i < 1920*1080; i++) {
 			x = i % 1920
@@ -51,18 +51,19 @@ function renderStars(location) {
 			xx = 0+x*stars.featurescale;
 			yy = 0+y*stars.featurescale;
 			noise = PerlinSimplex.noise( xx,yy );
-			
-			var starchance = rnd.random();
-			var starbright = rnd.random();
-			var starred = rnd.random()*stars.colorvar - stars.colorvar/2;
-			var stargreen = rnd.random()*stars.colorvar - stars.colorvar/2;
-			var starblue = rnd.random()*stars.colorvar - stars.colorvar/2;
+			starchance = rnd.random();
 			if( starchance < noise * stars.density ) {
 				// copy the image data back onto the canvas
+				var starbright = rnd.random();
+				var starred = rnd.random()*stars.colorvar - stars.colorvar/2;
+				var stargreen = rnd.random()*stars.colorvar - stars.colorvar/2;
+				var starblue = rnd.random()*stars.colorvar - stars.colorvar/2;
+				
 				var brightness = [];
 				brightness [0] = Math.min(255,(starbright * 225) + (noise * stars.brightness) - stars.brightness/2 + stars.sizeoffset + starred);
 				brightness [1] = Math.min(255,(starbright * 225) + (noise * stars.brightness) - stars.brightness/2 + stars.sizeoffset + stargreen);
 				brightness [2] = Math.min(255,(starbright * 225) + (noise * stars.brightness) - stars.brightness/2 + stars.sizeoffset + starblue);
+				
 				if(brightness[0] > 250) {
 						var pixels = [16,17,18,23,24,25,30,31,32];
 						for ( var p = 0; p < pixels.length; p++ ) {
@@ -92,7 +93,9 @@ function renderStars(location) {
 							data3[pixels[p]*4+2] = brightness[2] - 170;
 							data3[pixels[p]*4+3] = 255;
 						}
-						buffer.putImageData(data3, x, y);
+//						buffer.putImageData(data3, x, y);
+						buffer.addPixels(data3, x, y);
+//						self.postMessage({ type: 'log', message: 'Extra Big Star'});
 				}
 				else {
 					if(brightness[0] > 210) {
@@ -103,14 +106,16 @@ function renderStars(location) {
 							data2[pixels[p]*4+2] = brightness[2];
 							data2[pixels[p]*4+3] = 255;
 						}
-						buffer.putImageData(data2, x, y);
+//						buffer.putImageData(data2, x, y);
+						buffer.addPixels(data2, x, y);
 					}
 					else {
 						data1[0] = brightness[0]*1.2;
 						data1[1] = brightness[1]*1.2;
 						data1[2] = brightness[2]*1.2;
 						data1[3] = brightness[0];
-						buffer.putImageData(data1, x, y);
+//						buffer.putImageData(data1, x, y);
+						buffer.addPixels(data1, x, y);
 					}
 				}
 			}
@@ -119,5 +124,5 @@ function renderStars(location) {
 };
 
 self.addEventListener('message', function(e) {
-  self.postMessage(renderStars(e.data));
+  self.postMessage({ type: 'data', message: renderStars(e.data)});
 }, false);
