@@ -67,11 +67,10 @@ StarsClass = Class.extend({
 				if( e.data.type == 'log' ) {
 					console.log(e.data.message);
 				}
-				else if( e.data.type == 'data' ) {
+				else {
 					console.log('Star data received');
-					bg.saveStars(e.data.message);
+					bg.saveStars(e.data);
 					bg.starsloaded = 1;
-					
 					if( bg.starsloaded & bg.cloudsloaded ) {
 						bg.state = 'loaded';
 						bg.drawClouds();
@@ -84,11 +83,10 @@ StarsClass = Class.extend({
 				if( e.data.type == 'log' ) {
 					console.log(e.data.message);
 				}
-				else if( e.data.type == 'data' ) {
+				else {
 					console.log('Cloud data received');
-					bg.saveClouds(e.data.message);
+					bg.saveClouds(e.data);
 					bg.cloudsloaded = 1;
-					
 					if( bg.starsloaded & bg.cloudsloaded ) {
 						bg.state = 'loaded';
 						bg.drawClouds();
@@ -150,8 +148,10 @@ BackgroundClass = Class.extend({
 	},
 	
 	saveStars: function (pixeldata) {
+		var data = new Uint32Array(pixeldata);
+		var buf8 = new Uint8ClampedArray(pixeldata);
 		var imageData = this.starsctx.createImageData(game.canvaswidth, game.canvasheight);
-		for( var i = 0; i < imageData.data.length; i++) imageData.data[i] = pixeldata[i];
+		imageData.data.set(buf8);
 		this.starsctx.putImageData(imageData, 0, 0);
 	},
 	
@@ -161,9 +161,12 @@ BackgroundClass = Class.extend({
 	},
 
 	saveClouds: function (pixeldata) {
+		var data = new Uint32Array(pixeldata);
+		var buf8 = new Uint8ClampedArray(pixeldata);
 		var imageData = this.cloudsctx.createImageData(game.canvaswidth, game.canvasheight);
-		for( var i = 0; i < imageData.data.length; i++) imageData.data[i] = pixeldata[i];
+		imageData.data.set(buf8);
 		this.cloudsctx.putImageData(imageData, 0, 0);
+//		console.log(buf8[4323]);
 	},
 	
 	drawClouds: function () {
