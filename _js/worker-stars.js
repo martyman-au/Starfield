@@ -3,7 +3,7 @@ importScripts('mersenne-twister.js','PerlinSimplex2.js');
 var stars = { perlinoctaves:2,
 			  perlinfalloff:0.5,
 			  featurescale:0.002,
-			  colorvar:30,
+			  colorvar:60,
 			  density:0.007,
 			  brightness:120,
 			  sizeoffset:-10};
@@ -35,11 +35,10 @@ function renderStars(location) {
 			if( starchance < noise * stars.density ) {
 				// copy the image data back onto the canvas
 				var basebright = ~~((rnd.random() * 225) + (noise * stars.brightness) - stars.brightness/2 + stars.sizeoffset);
-				var starred = Math.floor((rnd.random()*stars.colorvar - stars.colorvar/2)*basebright/255);
-				var stargreen = Math.floor((rnd.random()*stars.colorvar - stars.colorvar/2)*basebright/255);
-				var starblue = Math.floor((rnd.random()*stars.colorvar - stars.colorvar/2)*basebright/255);
+				var starred = Math.floor((rnd.random()*stars.colorvar - stars.colorvar/2)*(basebright+100)/355);
+				var stargreen = Math.floor((rnd.random()*stars.colorvar - stars.colorvar/2)*(basebright+100)/355);
+				var starblue = Math.floor((rnd.random()*stars.colorvar - stars.colorvar/2)*(basebright+100)/355);
 				
-				self.postMessage({ type: 'log', message: basebright});
 				var brightness = [];
 				brightness[0] = Math.min(Math.max(basebright + starred,0),255);
 				brightness[1] = Math.min(Math.max(basebright + stargreen,0),255);
