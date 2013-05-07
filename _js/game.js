@@ -11,9 +11,7 @@ var gameClass = Class.extend({
 		cv = new CanvasClass();  		// canvas layers and contexts
 		stars = new StarsClass();
 		this.setupListners();			// Add some listners
-
 //		requestAnimationFrame( game.animFrame );		// Start animation loop
-
 		cv.setScale();					// TODO: not sure about this line and the next
 		this.redraw();
 	},
