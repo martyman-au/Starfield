@@ -14,31 +14,24 @@ StarsClass = Class.extend({
 	nebulatypes: [[[0,0],
 				   [0,0],
 				   [0,0]],
-				   
 				  [[0,0],
 				   [10,0],
 				   [0,0]],
-				   
 				  [[15,0],
 				   [0,0],
 				   [0,0]],
-				   
 				  [[0,0],
 				   [20,0],
 				   [0,0]],
-				   
 				  [[0,0],
 				   [10,-10],
 				   [0,0]],
-				   
 				  [[0,-10],
 				   [20,0],
 				   [0,0]],
-				   
 				  [[-10,0],
 				   [0,0],
 				   [10,0]],
-				   
 				  [[0,0],
 				   [20,0],
 				   [0,20]],
@@ -166,7 +159,6 @@ BackgroundClass = Class.extend({
 		var imageData = this.cloudsctx.createImageData(game.canvaswidth, game.canvasheight);
 		imageData.data.set(buf8);
 		this.cloudsctx.putImageData(imageData, 0, 0);
-//		console.log(buf8[4323]);
 	},
 	
 	drawClouds: function () {

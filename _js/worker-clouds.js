@@ -34,7 +34,7 @@ var nebulatypes = [[[0,0],
 				   [0,20]],
 				 ];
 	
-var clouds = { perlinoctaves:5,
+var clouds = { perlinoctaves:4,
 			  perlinfalloff:0.5,
 			  featurescale:0.001};
 

@@ -5,6 +5,7 @@ CanvasClass = Class.extend({
 	screenRatio: null,	// Apect ratio of the dipslay window
 	screenMode: null,	// sreen mode setting used to switch UI layout for portrait layout
 	layers: {},			// each of our game rendering layers is stored here
+	resized: false,		// Keeps track of if the window has been resized nad needs scaling and redrawing
 
 	init: function () {
 		// Create canvases for the various game layers base don the config file
@@ -17,6 +18,7 @@ CanvasClass = Class.extend({
 			this.layers[name].canvas.style.position=config.layers[i].position;
 			this.layers[name].canvas.style.top=config.layers[i].top;
 			this.layers[name].canvas.style.left=config.layers[i].left;
+			this.layers[name].canvas.style.zIndex=config.layers[i].zindex;
 			body.appendChild(this.layers[name].canvas);
 			this.layers[name].context = this.layers[name].canvas.getContext('2d');
 		}
@@ -51,6 +53,19 @@ CanvasClass = Class.extend({
 		this.layers['stars'].context.scale(this.scale,this.scale);
 		this.layers['stars'].canvas.style.top = (window.innerHeight - 1080*this.scale) /2+'px';
 		this.layers['stars'].canvas.style.left = (window.innerWidth - 1920*this.scale) /2+'px';
+
+//		this.layers['systems'].context.scale(this.scale,this.scale);
+//		this.layers['systems'].canvas.style.top = (window.innerHeight - 1080*this.scale) /2+'px';
+//		this.layers['systems'].canvas.style.left = (window.innerWidth - 1920*this.scale) /2+'px';
+	},
+	
+	animFrame: function () {
+		if(this.resized) {
+			this.resized = false;
+			this.setScale();
+			stars.redraw();
+			systems.redraw();
+		}
 	}
 	
 });
